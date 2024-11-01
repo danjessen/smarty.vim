@@ -1,9 +1,9 @@
 " Vim syntax file
 " Language:	Smarty Templates
-" Maintainer:	Daniel Hahler, original: Manfred Stienstra manfred.stienstra@dwerg.net
-" Last Change:  Di 10 Jun 2014 15:09:10 CEST
+" Maintainer:	Dan Jessen
+" Last Change:  Fri Nov  1 11:42:23 CET 2024
 " Filenames:    *.tpl
-" URL:		https://github.com/blueyed/smarty.vim
+" URL:		http://www.dwerg.net/projects/vim/smarty.vim
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -21,14 +21,47 @@ syn case ignore
 runtime! syntax/html.vim
 unlet b:current_syntax
 
-syn keyword smartySTags       contained append assign call capture config_load debug eval extends fetch html_checkboxes html_image html_options html_radios html_select_date html_select_time html_table include include_php insert mailto math ldelim rdelim
-syn keyword smartyDTags       contained block for capture function literal nocache php setfilter strip textformat
-syn keyword smartyConditional contained if elseif else forelse
-syn keyword smartySRepeat     contained cycle counter
-syn keyword smartyDRepeat     contained foreach foreachelse section sectionelse while
-syn keyword smartyForeachConstruct contained break continue
+syn keyword smartyTagName capture config_load include include_php
+syn keyword smartyTagName insert ldelim rdelim literal
+syn keyword smartyTagName call setfilter
+syn keyword smartyTagName strip assign counter cycle debug eval fetch
+syn keyword smartyTagName html_options html_select_date html_select_time
+syn keyword smartyTagName math popup_init popup html_checkboxes html_image
+syn keyword smartyTagName html_radios html_table mailto textformat
+syn keyword smartyTagName append block extends nocache function 
+syn keyword smartyTagName controller collection entity
 
-syn match smartyCProperty contained "[a-zA-Z0-9_]\+="
+syn keyword smartyConditional if elseif else contained
+syn keyword smartyRepeat      foreach in break continue foreachelse section contained
+
+syn keyword smartyInFunc neq eq gt lt ge gte le lte not mod or as in and contained
+syn match smartyInFunc "||" contained skipwhite
+syn match smartyInFunc "&&" contained skipwhite
+
+syn match smartyDot "\."
+syn match smartyComma ","
+syn match smartyEx "!"
+syn match smartyQs "?"
+syn match smartyEq "="
+syn match smartyColon ":"
+syn match smartyArr "=>"
+syn match smartyProp "->"
+syn match smartyVar "\$"
+syn match smartyArrStart "\["
+syn match smartyArrEnd "\]"
+syn match smartyPipe "|"
+syn keyword smartyBool true false
+syn keyword smartyNull null 
+syn match smartyAtt "@" 
+syn match smartyTypeCastBool "(bool)" 
+syn match smartyTypeCastInt "(int)"
+syn match smartyTypeCastFloat "(float)"
+syn match smartyTypeCastArray "(array)"
+syn match smartyTypeCastNumber "(number)"
+syn match smartyTypeCastString "(string)"
+syn match smartyNumber "-\=\<\d\+\>" contained
+syn match smartyFloat "-\=\<\d\+\>\.\.\@!\%(\d\+\>\)\=" contained
+
 syn match smartyProperty  contained "above="
 syn match smartyProperty  contained "address="
 syn match smartyProperty  contained "advance="
@@ -207,104 +240,61 @@ syn match smartyProperty  contained "year_extra="
 syn match smartyProperty  contained "year_id="
 syn match smartyProperty  contained "year_size="
 
-syn match smartyForeachProperty contained "@first"
-syn match smartyForeachProperty contained "@index"
-syn match smartyForeachProperty contained "@iteration"
-syn match smartyForeachProperty contained "@key"
-syn match smartyForeachProperty contained "@last"
-syn match smartyForeachProperty contained "@show"
-syn match smartyForeachProperty contained "@total"
+syn region smartyString matchgroup=smartyQuote start=+"+ end=+"+ contained
+syn region smartyString matchgroup=smartyQuote start=+'+ end=+'+ contained
 
-syn match   smartyConstant contained "\$smarty"
-syn keyword smartyTodo     contained FIXME NOTE TODO OPTIMIZE XXX
+syn region smartyZone	   matchgroup=smartyDelimiter start="{-\=" end="-\=}" contains=@smartyStatement containedin=ALLBUT,@smartyExempt keepend
+syn region smartyComment   matchgroup=smartyDelimiterComment start="{\*-\=" end="-\=\*}" contains=smartyTodo,@Spell containedin=ALLBUT,@smartyExempt keepend
 
-" Number
-syn match smartyNumber "-\=\<\d\+\>" contained display
-syn match smartyNumber "\<0x\x\{1,8}\>"  contained display
+syn cluster smartyExempt contains=smartyComment
+syn cluster smartyStatement contains=smartyTagName,smartyRepeat,smartyConditional,smartyInFunc,smartyString,smartyProperty,smartyDot,smartyComma,smartyArr,smartyProp,smartyVar,smartyArrStart,smartyArrEnd,smartyPipe,smartyBool,smartyNull,smartyEmpty,smartyAtt,smartyEx,smartyEq,smartyQs,smartyColon,smartyNumber,smartyFloat,smartyTypeCastBool,smartyTypeCastInt,smartyTypeCastFloat,smartyTypeCastArray,smartyTypeCastNumber,smartyTypeCastString
 
-" Boolean
-syn keyword smartyBoolean contained true false
-
-" Operator
-syn match  smartyOperator contained  "||\|&&\|===\|==\|!=\|>\|<\|>=\|<=\|!\|%"
-syn match  smartyOperator contained  " \@<=\(neq\|gte\|lte\|not\|mod\|ne\|eq\|gt\|lt\|ge\|le\) \@="
-syn match  smartyOperator contained  " \@<=is\( not\)\? \(even\|odd\)"
-syn match  smartyOperator contained  " \@<=is\( not\)\? \(div by\|even by\|odd by\) \@="
-syn match  smartyGlue     contained "\.\|\->"
-
-" Dollar
-syn match smartyDollarSign      contained "\$" " nextgroup=smartyVariable
-syn match smartyMaybeDollarSign contained "\([^\\]\|\\\\\)\@<=\$"
-
-" Hash
-syn match smartyHashSign        contained "#"
-
-" Variable
-syn match smartyVariable        contained "\$\@<=\(\h\w\{-}\(\.\|\->\|\[\w\{-}\]\(\.\|\->\)\)\)*\w*" contains=smartyGlue nextgroup=smartyForeachProperty
-syn match smartyVariable        contained "#\@<=\w\+#\@="
-syn match smartyMaybeVariable   contained "\(\(^\|[^\\]\|\\\\\)\$\)\@<=\h\w*"
-syn match smartyEscapedVariable contained "\\$\h\w*"
-
-syn region smartyInBracket    contained matchgroup=Constant start=+\[+ end=+\]+ contains=smartyVariable
-syn region smartyInBacktick   contained matchgroup=Constant start=+\`+ end=+\`+ contains=smartyVariable
-syn region smartyString       contained matchgroup=Constant start=+'+  end=+'+  contains=smartyMaybeVariable, smartyInBacktick, smartyMaybeDollarSign keepend
-syn region smartyStringDouble contained matchgroup=Constant start=+"+  end=+"+  contains=smartyMaybeVariable, smartyInBacktick, smartyMaybeDollarSign keepend
-syn region smartyModifier     contained matchgroup=Statement start=+||\@!+ end=+\ze:\|\>+
-syn region smartyParameter    contained matchgroup=Statement start=+:+     end=+\ze\(}\||\)+ contains=smartyVariable, smartyDollarSign, smartyGlue, smartyInBracket, smartyStringDouble contained
-
-syn region smartySimpleTag start="{\s\{-}[a-z$'"#]\@=" end="}" contains=smartyParameter, smartyCProperty, smartyProperty, smartyGlue, smartyModifier, smartyDollarSign, smartyHashSign, smartyInBracket, smartyStringDouble, smartyVariable, smartyString, smartySTags, smartyConstant, smartySRepeat, smartyNumber, smartyBoolean, smartyOperator, smartyTodo, smartyForeachConstruct
-syn region smartyStartTag  start="{\(block\|capture\|elseif\|for\|foreach\|function\|if\|literal\|nocache\|php\|section\|setfilter\|strip\|textformat\|while\)\@=" end="}" contains=smartyParameter, smartyCProperty, smartyProperty, smartyGlue, smartyModifier, smartyDollarSign, smartyHashSign, smartyInBracket, smartyStringDouble, smartyVariable, smartyString, smartyDTags, smartyConstant, smartyDRepeat, smartyNumber, smartyBoolean, smartyOperator, smartyConditional, smartyOperator
-syn region smartyMiddleTag start="{\(else\|foreachelse\|forelse\|sectionelse\)\>" end="}" contains=smartyConditional, smartyDRepeat
-syn region smartyEndTag    start="{/\(block\|capture\|for\|foreach\|function\|if\|literal\|nocache\|php\|section\|setfilter\|strip\|textformat\|while\)\@=" end="}" contains=smartyDTags, smartyConditional, smartyDRepeat
-syn region smartyComment   matchgroup=Comment  start="{\*" end="\*}" contains=smartyTodo
-
-syn cluster htmlPreproc add=smartyZone add=smartyComment add=smartySimpleTag add=smartyStartTag add=smartyMiddleTag add=smartyEndTag
-
-syn region htmlString   contained start=+"+ end=+"+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc
-syn region htmlString   contained start=+'+ end=+'+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc
-
-if version >= 508 || !exists("did_smarty_syn_inits")
-  if version < 508
-    let did_smarty_syn_inits = 1
-    command -nargs=+ HiLink hi link <args>
-  else
-    command -nargs=+ HiLink hi def link <args>
-  endif
-
-  HiLink smartyBoolean         Boolean
-  HiLink smartyCProperty       Identifier
-  HiLink smartyComment         Comment
-  HiLink smartyConditional     Keyword
-  HiLink smartyDRepeat         Keyword
-  HiLink smartyDTags           Keyword
-  HiLink smartyDollarSign      Statement
-  HiLink smartyHashSign        Statement
-  HiLink smartyForeachConstruct Keyword
-  HiLink smartyForeachProperty Keyword
-  HiLink smartyGlue            Statement
-  HiLink smartyInBacktick      Statement
-  HiLink smartyInBracket       PreProc
-  HiLink smartyKeyword         Type
-  HiLink smartyMaybeDollarSign Statement
-  HiLink smartyMaybeVariable   Identifier
-  HiLink smartyModifier        Special
-  HiLink smartyNumber          Number
-  HiLink smartyOperator        Operator
-  HiLink smartyProperty        Keyword
-  HiLink smartyRepeat          Repeat
-  HiLink smartySRepeat         Keyword
-  HiLink smartySTags           Keyword
-  HiLink smartyString          Special
-  HiLink smartyStringDouble    Special
-  HiLink smartyTest            Boolean
-  HiLink smartyTodo            Todo
-  HiLink smartyVariable        Identifier
-  delcommand HiLink
-endif
+hi def link smartyDelimiter             Number
+hi def link smartyZone			Number
+hi def link smartyTagName		Normal
+hi def link smartyConditional		Normal
+hi def link smartyRepeat		Normal
+hi def link smartyInFunc		Normal
+hi def link smartyArr			Normal
+hi def link smartyProp			Normal
+hi def link smartyDot			WarningMsg
+hi def link smartyEq			Normal
+hi def link smartyVar			Statement
+hi def link smartyColon			WarningMsg
+hi def link smartyQs			WarningMsg
+hi def link smartyAtt			WarningMsg
+hi def link smartyPipe			WarningMsg
+hi def link smartyComma			WarningMsg
+hi def link smartyEx			WarningMsg
+hi def link smartyArrEnd		Normal
+hi def link smartyArrStart		Normal
+hi def link smartyBool			Boolean
+hi def link smartyNull			Boolean
+hi def link smartyNumber		Boolean
+hi def link smartyNumberFloat		Boolean
+hi def link smartyTypeCastBool		Boolean
+hi def link smartyTypeCastInt		Boolean
+hi def link smartyTypeCastFloat		Boolean
+hi def link smartyTypeCastArray		Boolean
+hi def link smartyTypeCastNumber	Boolean
+hi def link smartyTypeCastString	Boolean
+hi def link smartyProperty		Character
+hi def link smartyString                diffNewFile
+hi def link smartyQuote			diffNewFile
+hi def link smartyComment		Comment
+hi def link smartyDelimiterComment	Comment
 
 " Match/delegate {php}..{/php} blocks.
 syn include syntax/php.vim
 syn region   phpRegion  matchgroup=Delimiter start="{php}" end="{/php}" contains=@phpClTop
+
+" Match/delegate {style}..{/style} blocks.
+syn include syntax/css.vim
+syn region   styleRegion  matchgroup=Delimiter start="{style}" end="{/style}" contains=@styleClTop
+
+" Match/delegate {script}..{/script} blocks.
+syn include syntax/javascript.vim
+syn region   scriptRegion  matchgroup=Delimiter start="{script}" end="{/script}" contains=@scriptClTop
 
 let b:current_syntax = "smarty"
 
