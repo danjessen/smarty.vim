@@ -255,6 +255,9 @@ syn cluster htmlPreproc add=smartyZone add=smartyComment add=smartyStatement
 syn region htmlString   contained start=+"+ end=+"+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc
 syn region htmlString   contained start=+'+ end=+'+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc
 
+syn region javaScript start=+{script+ keepend end=+{/script}+ contains=@htmlVbScript,htmlCssStyleComment,htmlScriptTag,@htmlPreproc
+syn region cssStyle start=+{style+ keepend end=+{/style}+ contains=@htmlCss,htmlTag,htmlEndTag,htmlCssStyleComment,@htmlPreproc
+
 hi def link smartyDelimiter             Number
 hi def link smartyZone			Number
 hi def link smartyTagName		Normal
@@ -293,9 +296,6 @@ hi def link smartyDelimiterComment	Comment
 " Match/delegate {php}..{/php} blocks.
 syn include syntax/php.vim
 syn region phpRegion matchgroup=Delimiter start="{php}" end="{/php}" contains=@phpClTop
-
-syn region javaScript start=+{script+ keepend end=+{/script}+ contains=@htmlVbScript,htmlCssStyleComment,htmlScriptTag,@htmlPreproc
-syn region cssStyle start=+{style+ keepend end=+{/style}+ contains=@htmlCss,htmlTag,htmlEndTag,htmlCssStyleComment,@htmlPreproc
 
 let b:current_syntax = "smarty"
 
