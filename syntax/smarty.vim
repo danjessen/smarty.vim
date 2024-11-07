@@ -293,7 +293,7 @@ hi def link smartyDelimiterComment	Comment
 syn include syntax/php.vim
 syn region phpRegion matchgroup=Delimiter start="{php}" end="{/php}" contains=@phpClTop
 
-syn region javaScript start=+{script \_[^}]*language *=\_[^}]*vbscript\_[^}]*>+ keepend end=+{/script\_[^}]*}+me=s-1 contains=@htmlVbScript,htmlCssStyleComment,htmlScriptTag,@htmlPreproc
+syn region javaScript start=+{script+ keepend end=+{/script}+ contains=@htmlVbScript,htmlCssStyleComment,htmlScriptTag,@htmlPreproc
 syn region cssStyle start=+{style+ keepend end=+{/style}+ contains=@htmlCss,htmlTag,htmlEndTag,htmlCssStyleComment,@htmlPreproc
 
 let b:current_syntax = "smarty"
