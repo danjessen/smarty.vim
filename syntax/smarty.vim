@@ -249,6 +249,11 @@ syn region smartyComment   matchgroup=smartyDelimiterComment start="{\*-\=" end=
 syn cluster smartyExempt contains=smartyComment
 syn cluster smartyStatement contains=smartyTagName,smartyRepeat,smartyConditional,smartyInFunc,smartyString,smartyProperty,smartyDot,smartyComma,smartyArr,smartyProp,smartyVar,smartyArrStart,smartyArrEnd,smartyPipe,smartyBool,smartyNull,smartyEmpty,smartyAtt,smartyEx,smartyEq,smartyQs,smartyColon,smartyNumber,smartyFloat,smartyTypeCastBool,smartyTypeCastInt,smartyTypeCastFloat,smartyTypeCastArray,smartyTypeCastNumber,smartyTypeCastString
 
+syn cluster htmlPreproc add=smartyZone add=smartyComment add=smartyStatement
+
+syn region htmlString   contained start=+"+ end=+"+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc
+syn region htmlString   contained start=+'+ end=+'+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc
+
 hi def link smartyDelimiter             Number
 hi def link smartyZone			Number
 hi def link smartyTagName		Normal
@@ -286,15 +291,10 @@ hi def link smartyDelimiterComment	Comment
 
 " Match/delegate {php}..{/php} blocks.
 syn include syntax/php.vim
-syn region   phpRegion  matchgroup=Delimiter start="{php}" end="{/php}" contains=@phpClTop
+syn region phpRegion matchgroup=Delimiter start="{php}" end="{/php}" contains=@phpClTop
 
-" Match/delegate {style}..{/style} blocks.
-syn include syntax/css.vim
-syn region   styleRegion  matchgroup=Delimiter start="{style}" end="{/style}" contains=@styleClTop
-
-" Match/delegate {script}..{/script} blocks.
-syn include syntax/javascript.vim
-syn region   scriptRegion  matchgroup=Delimiter start="{script}" end="{/script}" contains=@scriptClTop
+syn region javaScript start=+{script \_[^}]*language *=\_[^}]*vbscript\_[^}]*>+ keepend end=+{/script\_[^}]*}+me=s-1 contains=@htmlVbScript,htmlCssStyleComment,htmlScriptTag,@htmlPreproc
+syn region cssStyle start=+{style+ keepend end=+{/style}+ contains=@htmlCss,htmlTag,htmlEndTag,htmlCssStyleComment,@htmlPreproc
 
 let b:current_syntax = "smarty"
 
