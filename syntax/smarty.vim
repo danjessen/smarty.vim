@@ -24,6 +24,7 @@ unlet b:current_syntax
 syn keyword smartyTagName capture config_load include include_php
 syn keyword smartyTagName insert ldelim rdelim literal
 syn keyword smartyTagName call setfilter
+syn keyword smartyTagName script style
 syn keyword smartyTagName strip assign counter cycle debug eval fetch
 syn keyword smartyTagName html_options html_select_date html_select_time
 syn keyword smartyTagName math popup_init popup html_checkboxes html_image
